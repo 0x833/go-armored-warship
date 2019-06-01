@@ -1,26 +1,15 @@
 package battleship
 
 import (
-	"bufio"
 	"fmt"
 	"os"
 	"os/exec"
 	"runtime"
-	"strconv"
 )
 
-type Ship interface {
-	IsSunk() bool
-}
-
-type BattleShip struct {
-	Position Coordinate
-	Requires int
-}
-
 type Coordinate struct {
-	X int
-	Y int
+	X     int
+	Y     int
 	value string
 }
 
@@ -50,13 +39,12 @@ func init() {
 
 func CallClear() {
 	value, ok := clear[runtime.GOOS] //runtime.GOOS -> linux, windows, darwin etc.
-	if ok { //if we defined a clear func for that platform:
-		value()  //we execute it
+	if ok {                          //if we defined a clear func for that platform:
+		value() //we execute it
 	} else { //unsupported platform
 		panic("Your platform is unsupported! I can't clear terminal screen :(")
 	}
 }
-
 
 func title() string {
 	return fmt.Sprintf(`____       _______ _______ _      ______  _____ _    _ _____ _____
@@ -66,25 +54,3 @@ func title() string {
 | |_) / ____ \| |     | |  | |____| |____ ____) | |  | |_| |_| |
 |____/_/    \_\_|     |_|  |______|______|_____/|_|  |_|_____|_|     `)
 }
-
-func Prompt() int {
-	selection := -1
-	for ; selection < 0 && selection > 3; {
-		CallClear()
-		fmt.Print(title())
-
-		reader := bufio.NewReader(os.Stdin)
-		fmt.Print("Enter a selection: ")
-		text, _ := reader.ReadString('\n')
-
-		var err error
-		selection, err = strconv.Atoi(text)
-		if err != nil {
-			selection = -1
-		}
-	}
-
-	return selection
-}
-
-
