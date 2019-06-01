@@ -165,6 +165,14 @@ func (Deploy) Image() error {
 	if err != nil {
 		return err
 	}
+	cmd, err := sh.OutCmd("docker", "tag", "battleship:"+Version.SemVer, "arkticman/go-armored-warship:"+Version.SHA)()
+	if err != nil {
+		return err
+	}
+	cmd, err := sh.OutCmd("docker", "tag", "battleship:"+Version.SemVer, "arkticman/go-armored-warship:"+Version.Branch)()
+	if err != nil {
+		return err
+	}
 	cmd, err = sh.OutCmd("docker", "push", "arkticman/go-armored-warship:"+Version.SemVer)()
 	if err != nil {
 		return err
