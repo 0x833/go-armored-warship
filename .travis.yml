@@ -13,4 +13,5 @@ before_install:
 script:
 - cd $PREV
 - mage bi
+- echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 - mage deploy:image
