@@ -6,9 +6,11 @@ services:
 
 before_install:
 - go get -u -d github.com/magefile/mage
+- PREV=$(pwd)
 - cd $GOPATH/src/github.com/magefile/mage
 - go run bootstrap.go
 
 script:
+- cd $PREV
 - mage bi
 - mage deploy:image
