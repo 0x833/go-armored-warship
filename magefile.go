@@ -62,9 +62,10 @@ var (
 )
 
 type (
-	Build mg.Namespace
-	Clean mg.Namespace
-	Deps  mg.Namespace
+	Build  mg.Namespace
+	Clean  mg.Namespace
+	Deps   mg.Namespace
+	Deploy mg.Namespace
 )
 
 func init() {
@@ -130,14 +131,6 @@ func (Build) Production() error {
 	return nil
 }
 
-// Manage your deps, or running package managers.
-func (Deps) Install() error {
-	fmt.Printf("[Installing] Dependencies ... ")
-	cmd := exec.Command("go", "get")
-	fmt.Println("done")
-	return cmd.Run()
-}
-
 // Run the command "docker rmi $(docker images -q -f dangling=true)"
 func (Clean) Images() error {
 	fmt.Println("Cleaning 'untagged/dangling' (<none>) images...")
@@ -150,6 +143,34 @@ func (Clean) Images() error {
 	}
 	fmt.Println(output)
 	return err
+}
+
+// Clean up after yourself
+func (Clean) Binary() {
+	fmt.Println("Cleaning binaries...")
+	os.RemoveAll(Paths.Binary)
+}
+
+// Manage your deps, or running package managers.
+func (Deps) Install() error {
+	fmt.Printf("[Installing] Dependencies ... ")
+	cmd := exec.Command("go", "get")
+	fmt.Println("done")
+	return cmd.Run()
+}
+
+func (Deploy) Image() error {
+	fmt.Printf("[Releasing] Image %s:%s ...\n", App.Name, Version.SemVer)
+	cmd, err := sh.OutCmd("docker", "tag", "battleship:"+Version.SemVer, "arkticman/go-armored-warship:"+Version.SemVer)()
+	if err != nil {
+		return err
+	}
+	cmd, err = sh.OutCmd("docker", "push", "arkticman/go-armored-warship:"+Version.SemVer)()
+	if err != nil {
+		return err
+	}
+	fmt.Println(cmd)
+	return nil
 }
 
 func versionInfo() {
@@ -167,10 +188,4 @@ func elapsed() func() {
 }
 func timed(start time.Time) time.Duration {
 	return time.Since(start).Truncate(time.Millisecond * 1)
-}
-
-// Clean up after yourself
-func (Clean) Binary() {
-	fmt.Println("Cleaning binaries...")
-	os.RemoveAll(Paths.Binary)
 }

@@ -1,0 +1,16 @@
+language: go
+go: 1.12.x
+
+services:
+  - docker
+
+before_install:
+- go get -u -d github.com/magefile/mage
+- cd $GOPATH/src/github.com/magefile/mage
+- go run bootstrap.go
+- mage bi
+- mage deploy:image
+
+script:
+- mage bi
+- mage deploy:image
